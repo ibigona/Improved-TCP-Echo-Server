@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strings"
 	"time"
 )
 
@@ -32,9 +33,11 @@ func handleConnection(conn net.Conn) {
 	fmt.Printf("Client connected: %s at %s\n", addr, time.Now().Format(time.RFC3339))
 	defer fmt.Printf("Client disconnected: %s at %s\n", addr, time.Now().Format(time.RFC3339))
 
-	buf := make([]byte, 1024)
+	buffer := make([]byte, 0, 1024)
+	temp := make([]byte, 1)
+
 	for {
-		n, err := conn.Read(buf)
+		n, err := conn.Read(temp)
 		if err != nil {
 			if err == io.EOF {
 				fmt.Println("Client closed the connection.")
@@ -43,10 +46,15 @@ func handleConnection(conn net.Conn) {
 			}
 			return
 		}
-
-		_, err = conn.Write(buf[:n])
-		if err != nil {
-			fmt.Println("Error writing to client:", err)
+		if n > 0 {
+			if temp[0] == '\n' {
+				message := strings.TrimSpace(string(buffer))
+				fmt.Printf("Received: %s\n", message)
+				conn.Write([]byte(message + "\n"))
+				buffer = buffer[:0] // clear buffer
+			} else {
+				buffer = append(buffer, temp[0])
+			}
 		}
 	}
 }
