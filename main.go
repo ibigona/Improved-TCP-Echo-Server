@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"time"
 )
@@ -20,7 +21,7 @@ func main() {
 			fmt.Println("Error accepting:", err)
 			continue
 		}
-		go handleConnection(conn) //concurrent
+		go handleConnection(conn)
 	}
 }
 
@@ -35,9 +36,14 @@ func handleConnection(conn net.Conn) {
 	for {
 		n, err := conn.Read(buf)
 		if err != nil {
-			fmt.Println("Error reading from client:", err)
+			if err == io.EOF {
+				fmt.Println("Client closed the connection.")
+			} else {
+				fmt.Println("Error reading from client:", err)
+			}
 			return
 		}
+
 		_, err = conn.Write(buf[:n])
 		if err != nil {
 			fmt.Println("Error writing to client:", err)
