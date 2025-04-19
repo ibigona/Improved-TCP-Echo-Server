@@ -41,7 +41,7 @@ Task	Key Learnings
 Concurrency	Goroutines vs. threads, race condition avoidance
 Logging	File I/O, timestamp formatting, defer for cleanup
 Graceful Disconnects	Error handling (io.EOF), connection lifecycle management
-Byte Parsing	Manual buffer management without bufio
+Byte Parsing	Manual buffer management
 Inactivity Timeout	SetReadDeadline, net.Error type assertions
 Command Protocol	Prefix-based parsing (/command), stateful responses
 
@@ -59,7 +59,6 @@ Lesson: Deadlines apply per operation, not per connection. Reset after each read
 3. Logging Efficiency
 go
 file.WriteString(msg) // Slow for high throughput!
-Optimization: Switched to buffered writes with bufio.NewWriter.
 
 4. Command Security
 go
