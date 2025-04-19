@@ -33,13 +33,24 @@ func main() {
 }
 
 func processMessage(message string, conn net.Conn) bool {
-    switch strings.ToLower(message) {
-    case "hello":
-        conn.Write([]byte("Hi there!\n"))
-    case "bye":
-        conn.Write([]byte("Goodbye!\n"))
+    // Trim and check for commands
+    message = strings.TrimSpace(message)
+    
+    switch {
+    case strings.HasPrefix(message, "/time"):
+        conn.Write([]byte(fmt.Sprintf("Server time: %s\n", time.Now().Format(time.RFC3339))))
+    case strings.HasPrefix(message, "/quit"):
+        conn.Write([]byte("Closing connection...\n"))
         return true // Close connection
-    case "":
+    case strings.HasPrefix(message, "/echo "):
+        echoMsg := strings.TrimPrefix(message, "/echo ")
+        conn.Write([]byte(echoMsg + "\n"))
+    case strings.EqualFold(message, "hello"):
+        conn.Write([]byte("Hi there!\n"))
+    case strings.EqualFold(message, "bye"):
+        conn.Write([]byte("Goodbye!\n"))
+        return true
+    case message == "":
         conn.Write([]byte("Say something...\n"))
     default:
         conn.Write([]byte(message + "\n"))
