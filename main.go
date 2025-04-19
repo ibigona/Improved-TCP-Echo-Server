@@ -8,24 +8,28 @@ import (
 	"time"
 	"os"
 	"path/filepath"
+	"flag"
 )
 
 func main() {
-	listener, err := net.Listen("tcp", ":4000")
-	if err != nil {
-		panic(err)
-	}
-	defer listener.Close()
+    port := flag.String("port", "4000", "Port to listen on")
+    flag.Parse()
 
-	fmt.Println("Server listening on :4000")
-	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			fmt.Println("Error accepting:", err)
-			continue
-		}
-		go handleConnection(conn)
-	}
+    listener, err := net.Listen("tcp", ":"+*port)
+    if err != nil {
+        panic(err)
+    }
+    defer listener.Close()
+
+    fmt.Printf("Server listening on :%s\n", *port)
+    for {
+        conn, err := listener.Accept()
+        if err != nil {
+            fmt.Println("Error accepting:", err)
+            continue
+        }
+        go handleConnection(conn)
+    }
 }
 
 func handleConnection(conn net.Conn) {
