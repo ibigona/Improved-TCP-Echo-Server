@@ -6,6 +6,8 @@ import (
 	"net"
 	"strings"
 	"time"
+	"os"
+	"path/filepath"
 )
 
 func main() {
@@ -29,7 +31,15 @@ func main() {
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
-	addr := conn.RemoteAddr().String()
+	addr := conn.RemoteAddr().(*net.TCPAddr).IP.String()
+	logFile := filepath.Join(".", addr+".log")
+	file, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Println("Error opening log file:", err)
+		return
+	}
+	defer file.Close()
+
 	fmt.Printf("Client connected: %s at %s\n", addr, time.Now().Format(time.RFC3339))
 	defer fmt.Printf("Client disconnected: %s at %s\n", addr, time.Now().Format(time.RFC3339))
 
@@ -49,9 +59,10 @@ func handleConnection(conn net.Conn) {
 		if n > 0 {
 			if temp[0] == '\n' {
 				message := strings.TrimSpace(string(buffer))
-				fmt.Printf("Received: %s\n", message)
+				fmt.Printf("Received from %s: %s\n", addr, message)
+				file.WriteString(fmt.Sprintf("[%s] %s\n", time.Now().Format(time.RFC3339), message))
 				conn.Write([]byte(message + "\n"))
-				buffer = buffer[:0] // clear buffer
+				buffer = buffer[:0]
 			} else {
 				buffer = append(buffer, temp[0])
 			}
