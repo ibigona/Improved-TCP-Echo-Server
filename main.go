@@ -51,7 +51,6 @@ func handleConnection(conn net.Conn) {
     temp := make([]byte, 1)
 
     for {
-        // Set 30-second deadline for Read operations
         conn.SetReadDeadline(time.Now().Add(30 * time.Second))
 
         n, err := conn.Read(temp)
@@ -73,8 +72,13 @@ func handleConnection(conn net.Conn) {
                 fmt.Printf("Received from %s: %s\n", addr, message)
                 file.WriteString(fmt.Sprintf("[%s] %s\n", time.Now().Format(time.RFC3339), message))
                 conn.Write([]byte(message + "\n"))
-                buffer = buffer[:0]
+                buffer = buffer[:0] // Reset buffer
             } else {
+                if len(buffer) >= 1024 {
+                    conn.Write([]byte("Error: Message too long (max 1024 bytes)\n"))
+                    fmt.Println("Client sent oversized message:", addr)
+                    return
+                }
                 buffer = append(buffer, temp[0])
             }
         }
