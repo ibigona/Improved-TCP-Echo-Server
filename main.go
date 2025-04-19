@@ -32,6 +32,21 @@ func main() {
     }
 }
 
+func processMessage(message string, conn net.Conn) bool {
+    switch strings.ToLower(message) {
+    case "hello":
+        conn.Write([]byte("Hi there!\n"))
+    case "bye":
+        conn.Write([]byte("Goodbye!\n"))
+        return true // Close connection
+    case "":
+        conn.Write([]byte("Say something...\n"))
+    default:
+        conn.Write([]byte(message + "\n"))
+    }
+    return false
+}
+
 func handleConnection(conn net.Conn) {
     defer conn.Close()
 
@@ -71,8 +86,12 @@ func handleConnection(conn net.Conn) {
                 message := strings.TrimSpace(string(buffer))
                 fmt.Printf("Received from %s: %s\n", addr, message)
                 file.WriteString(fmt.Sprintf("[%s] %s\n", time.Now().Format(time.RFC3339), message))
-                conn.Write([]byte(message + "\n"))
-                buffer = buffer[:0] // Reset buffer
+
+                shouldClose := processMessage(message, conn)
+                if shouldClose {
+                    return
+                }
+                buffer = buffer[:0]
             } else {
                 if len(buffer) >= 1024 {
                     conn.Write([]byte("Error: Message too long (max 1024 bytes)\n"))
