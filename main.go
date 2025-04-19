@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"time"
 )
 
 func main() {
@@ -25,6 +26,11 @@ func main() {
 
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
+
+	addr := conn.RemoteAddr().String()
+	fmt.Printf("Client connected: %s at %s\n", addr, time.Now().Format(time.RFC3339))
+	defer fmt.Printf("Client disconnected: %s at %s\n", addr, time.Now().Format(time.RFC3339))
+
 	buf := make([]byte, 1024)
 	for {
 		n, err := conn.Read(buf)
