@@ -1,6 +1,6 @@
 # 🚀 Enhanced TCP Echo Server in Go
 
-A production-ready TCP server with concurrency, logging, command protocol, and custom responses. Built for Network Programming 2 (Test #2).
+A production-ready TCP server with concurrency, logging, command protocol, and custom responses.
 
 ## Features
 - ✅ Concurrent client handling (goroutines)  
@@ -30,11 +30,11 @@ nc localhost 4000
 
 ## Test Commands
 Command	Response
-hello	Hi there!
-bye	Goodbye! (disconnects)
-/time	Current server time
-/echo <msg>	Repeats <msg>
-/quit	Closes connection
+hello |	Hi there!
+bye	|  Goodbye! (disconnects)
+/time	|  Current server time
+/echo <msg>	|   Repeats <msg>
+/quit	|  Closes connection
 
 ## 🎓 Educationally Enriching Features
 Task	Key Learnings
@@ -64,4 +64,6 @@ file.WriteString(msg) // Slow for high throughput!
 go
 msg = strings.TrimSpace(input) // Prevent padding attacks
 Risk: Naive splitting (strings.Split) could allow command injection.
+
+## Link To Video
 
